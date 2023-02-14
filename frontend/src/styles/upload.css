@@ -1,0 +1,55 @@
+#upload{
+    width: 100%;
+    height: 100vh;
+    
+}
+
+.upDiv{
+    margin: auto;
+    box-sizing: border-box;
+    margin-top: 100px;
+    width: 400px;
+    height: 300px;
+    border: 2px dashed gray;
+    display: flex;
+    align-items: center;
+    /* margin: 10px; */
+    background-color: rgb(227, 221, 221);
+}
+
+.inpDiv{
+    width: 90%;
+    height: 70px;
+    position: relative;
+    margin: auto;
+}
+
+.progressBar{
+
+    width: 100%;
+    height: 20px;
+    position: relative;
+}
+.progressBar span{
+    font-size: 14px;
+    position: absolute;
+    width: 100%;
+    text-align: center;
+}
+.inpDiv p{
+    margin: 0px;
+}
+.inpDiv h3{
+    margin: 0;
+    margin-bottom: 10px;
+    font-weight: 400;
+}
+.progress{
+    width: 0%;
+    background-color: rgb(33, 221, 255);
+    height: 100%;
+    text-align: center;
+    padding: 2px 0;
+
+}
+
