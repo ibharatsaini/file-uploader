@@ -16,15 +16,7 @@ async function sendToken(code,res,user){
     return res.cookie('token',token,options)
                 // .status(code)
                 .redirect(`http://localhost:3000`)
-    // return res.status(200).cookie('token',token,options).json({
-    //                     success:true,
-    //                     data:user
-    // })
     
-    // return res.status(code || 200).cookie('token',token,options).json({
-    //                     success:true,
-    //                     data:user
-    // })
 }
 
 module.exports = catchAsyncError(sendToken)

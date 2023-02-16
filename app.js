@@ -28,5 +28,5 @@ app.use(`/api/v1/user`,userRouter)
 
 
 //errorhandler
-app.use(errorHandler())
+app.use(errorHandler)
 module.exports = app

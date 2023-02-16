@@ -1,5 +1,6 @@
 const S3 = require("aws-sdk/clients/s3");
 const catchAsyncError = require("../utils/catchAsyncErrors");
+const AppError = require("../utils/errorClass");
 
 
 const s3 = new S3({
@@ -12,8 +13,13 @@ const s3 = new S3({
 
 
 const uploadPresignedUrl = async(req,res,next)=>{
+
                 const name = req.query.fileName
+
+                if(!name) return next(new AppError(404,`File name is required`))
+
                 const keyName = `${name.split(".")[0]}-${Math.floor(Math.random()*100000)}.${name.split(".")[1]}`
+
                 const s3Params = {
                     Bucket: process.env.BUCKET_NAME,
                     Key: keyName,

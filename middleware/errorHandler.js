@@ -1,4 +1,4 @@
-const AppError = require("../helpers/errorHandler")
+const AppError = require("../utils/errorClass")
 
 module.exports = (err,req,res,next)=>{
         err.code = err.code || 500
