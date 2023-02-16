@@ -7,6 +7,7 @@ import Upload from './Upload/Upload';
 import Header from './Header/Header';
 import MyFiles from './MyFiles/MyFiles';
 import { Toaster } from 'react-hot-toast';
+import Download from './Downloads/Download';
 function App() {
   return (
 
@@ -18,6 +19,7 @@ function App() {
                           <Route path={`/login`} element={<Login />} />
                           <Route path={`/upload`} element={<Upload />} />
                           <Route path={`/my-files`} element={<MyFiles />} />
+                          <Route path={`/downloads`} element={<Download />} />
                   </Routes>
           </BrowserRouter>
   );

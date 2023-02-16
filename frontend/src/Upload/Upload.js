@@ -6,14 +6,18 @@ import { updateFiles } from '../reduxStore/actions/user.action'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import {toast} from 'react-hot-toast'
+import { createUpload } from '../reduxStore/actions/upload.action'
+import { FiFileText } from 'react-icons/fi'
+import "../styles/myfiles.css"
+import Progress from '../MyFiles/Progress'
 function Upload() {
 
     const  [files,setFile] = useState(null)
-    const [progress,setProgress] = useState(0)
-    const {isAuthenticate} = useSelector(state=>state.user)
+    const {isAuthenticated} = useSelector(state=>state.user)
     const navigate = useNavigate()
     const dispatch = useDispatch()
     
+    const {uploads} = useSelector(state=>state.upload)
     
   
     async function getUpload(file){
@@ -27,30 +31,12 @@ function Upload() {
                     const {uploadUrl:url , key} = result.data
                     
                     console.log('check', url,key)
-                    const check = await axios.put(url,file,{
-                                        onUploadProgress:(p)=>{
-                                            setProgress(Math.floor(p.progress*100))
-                                        }
-                                    })
+                    dispatch(createUpload(key,url,file))
                     
-                    if(check){
-                        const result =  await axios.post(`/api/v1/user/update-files`,{
-                            key,
-                            size:file.size
-                        })
-
-                        if(!result.data.success) return
-                        
-                        toast.success("Uploaded successfully")
-
-                        dispatch(updateFiles({key,size:file.size}))
-
-                        return navigate(`/my-files`)
-                    }
         }catch(e){
             toast.error("Upload failed")
             setFile(null)
-            setProgress(0)
+            // setProgress(0)
         }
       
   
@@ -58,20 +44,18 @@ function Upload() {
     }
 
     useEffect(()=>{
-        if(!isAuthenticate){
+        if(!isAuthenticated){
             return navigate(`/login`)
         }
     },[])
   
   
-    return isAuthenticate &&  (
+    return isAuthenticated &&  (
       <div id='upload'>
   
-          {/* <div className='login'>
-              Login With Google
-          </div> */}
+          
           <div className='upDiv'>
-            { !files ? (
+            {  (
                     <label className='inpDiv'>
                     <MdImage style={{fontSize:'40px'}}/>
                     <p>Click here to upload</p>
@@ -81,21 +65,22 @@ function Upload() {
                                     onChange={({target})=>getUpload(target.files[0])}
                             />
                     </label>
-                ):
-                (
-                    <div className='inpDiv'>
-                        <h3>Uploading...</h3>
-                        <div className='progressBar'>
-                            <span>{progress}%</span>
-                            <div style={{width:`${progress}%`}} className='progress'>
-                            </div>
-                        </div>
-                    </div>
                 )
             }
           {/* <button onClick={getUpload}>Upload File</button> */}
           </div>
-          {/* <button onClick={getDownload}>Download URL</button> */}
+          {
+            uploads.length>0 && (
+                                            <div id='files'>
+                                { uploads.map(el=>{
+                                    return (
+                                            <Progress name={el.key} progress={el.progress} />
+                                    )
+                                })
+                                }
+                            </div>
+            )
+          }
   
       </div>
     )

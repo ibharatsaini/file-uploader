@@ -10,6 +10,7 @@ function File({name,size,handleDownload}) {
         setVisible(false)
         handleDownload(name)
     }
+    
   return (
     <div className='file'>
                      <FiFileText className='fileIco' />
@@ -22,9 +23,12 @@ function File({name,size,handleDownload}) {
                     <div className='download'>
                       <BsThreeDotsVertical onClick={()=>setVisible(!visible)}/>
                       {  visible && (
+                                        
                                         <div onClick={callDownload} id='down'>
                                                 Download
                                         </div>
+                                        
+    
                                     )
                       }
                     </div>

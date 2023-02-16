@@ -22,6 +22,9 @@ function Header() {
                                 <Link to={`/upload`}>
                                         Uploads
                                 </Link>   
+                                <Link to={`/downloads`}>
+                                        Downloads
+                                </Link>
                                 {
                                         !isAuthenticated ? (
                                                 <Link to={`/login`}>Login</Link>

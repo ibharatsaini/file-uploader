@@ -17,6 +17,33 @@
 
 }
 
+.colName{
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    height: 100%;
+    padding: 10px 0px;
+}
+
+.progress{
+    width: 100%;
+    position: relative
+}
+.progressBar{
+    height: 20px;
+    width: 0%;
+    position: absolute;
+    background-color: rgb(157, 142, 225);
+}
+.colName span{
+    text-align: center;
+    position: absolute;
+    width: 100%;
+    color: black;
+    z-index: 2;
+}
+
 .fileIco{
     font-size: 40px;
     z-index: 1;

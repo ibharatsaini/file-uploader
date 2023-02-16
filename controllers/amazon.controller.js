@@ -1,6 +1,7 @@
 const S3 = require("aws-sdk/clients/s3");
 const catchAsyncError = require("../utils/catchAsyncErrors");
 const AppError = require("../utils/errorClass");
+const User = require("../models/user.model")
 
 
 const s3 = new S3({
@@ -28,7 +29,7 @@ const uploadPresignedUrl = async(req,res,next)=>{
                 };
 
 
-                const uploadUrl = await s3.getSignedUrl("putObject", s3Params);
+                const uploadUrl = s3.getSignedUrl("putObject", s3Params)
 
               
                 return res.status(200).json({
@@ -40,16 +41,26 @@ const uploadPresignedUrl = async(req,res,next)=>{
                 });
 }
 
+
 const downloadPresignedUrl = async(req,res,next)=>{
+                
+                const { key } = req.query
+
+                if(!key) return next(new AppError(404, 'Key is required'))
+
+                const foundKey = await User.findOne({'files':{$elemMatch:{key:key}}})
+
+                if(!foundKey) return next(new AppError(404,`File Not Found`))
+
                 const s3Params = {
                     Bucket: process.env.BUCKET_NAME,
-                    Key: req.query.key,
+                    Key: key,
                     Expires: 60*60,
                 };
 
-                const downloadUrl = await s3.getSignedUrl("getObject",s3Params)
+                const downloadUrl = s3.getSignedUrl("getObject",s3Params)
 
-                if(!downloadUrl) return
+                if(!downloadUrl) return next(new AppError(404,`Download Url not fetched`))
 
                 console.log(downloadUrl)
 
@@ -65,6 +76,6 @@ const downloadPresignedUrl = async(req,res,next)=>{
 
 module.exports = {
     uploadPresignedUrl :  catchAsyncError(uploadPresignedUrl),
-    downloadPresignedUrl: catchAsyncError(downloadPresignedUrl)
+    downloadPresignedUrl: catchAsyncError(downloadPresignedUrl),
 }
 
