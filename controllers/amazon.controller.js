@@ -83,8 +83,10 @@ const uploadParts = async(req,res,next) =>{
    
     // const fi = await User.findOne({_id:req.user._id , files:{key}})
     let  partNumber
+    console.log(req)
     console.log(`loop`)
     req.user.files.map(el=>{
+        console.log(el)
         console.log(el.key,key)
         if(el.key==key){
             console.log(el.key)

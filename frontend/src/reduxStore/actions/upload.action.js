@@ -12,39 +12,7 @@ export const addUpload = (data)=>{
     }
 }
 
-// export const createUpload = (key,url,file)=>async(dispatch)=>{
-//         try{
-//             dispatch(addUpload(key))
-//             const uploaded = await axios.put(url,file,{
-//                                     onUploadProgress:(p)=>{
-//                                         console.log(p)
-//                                         dispatch(updateUpload({key,progress:Math.floor(p.progress*100)}))
-//                                     }
-//                                 })
-//             if(uploaded){
 
-//                 const result =  await axios.post(`/api/v1/user/update-files`,{
-//                             key,
-//                             size:file.size
-//                         })
-
-//                 if(result.data.success){
-                
-//                     toast.success("Uploaded successfully")
-
-//                     dispatch(updateFiles({key,size:file.size}))
-//                 }
-
-//             }else{
-//                 return toast.error(`Upload failed`)
-//             }
-
-//                     // return navigate(`/my-files`)
-//         }catch(e){
-//             console.log(e)
-//         }
-        
-// }
 
 export const createUpload = (key,url,file)=>async(dispatch)=>{
     try{
@@ -73,14 +41,14 @@ export const createUpload = (key,url,file)=>async(dispatch)=>{
                 const {uploadId,key} = uploaded.data
                 console.log(uploadId,key)
                 // consodd.l
-                const fileSize = file.size
+                const totalSize = file.size
                 let partNumber = 1
                 const chunkSize = 1024 * 1024 * 5
                 let offset = 0
-                while (offset < fileSize) {
-                    console.log(offset,fileSize)
+                while (offset < totalSize) {
+                    console.log(offset,totalSize)
                     // if(offset == 3) break
-                    const end = Math.min(offset + chunkSize, fileSize);
+                    const end = Math.min(offset + chunkSize, totalSize);
                     const chunk = file.slice(offset, end);
                     console.log(chunk,end,offset)
                     const formData = new FormData();
@@ -99,33 +67,20 @@ export const createUpload = (key,url,file)=>async(dispatch)=>{
                     console.log(offset,partNumber)
                   }
                 
-                //  { uploadId , key} =uploaded.data
                 const result = await (await fetch(`/api/v1/amazon/upload-full`,{
                     method:"POST",
                     headers: {
                         'Content-Type': 'application/json'
-                        // 'Content-Type': 'application/x-www-form-urlencoded',
                       },
                     body: JSON.stringify({key,uploadId})
                 })).json()
                 console.log(result)
-            // const result =  await axios.post(`/api/v1/user/update-files`,{
-            //             key,
-            //             size:file.size
-            //         })
-
-            // if(result.data.success){
             
-            //     toast.success("Uploaded successfully")
-
-            //     dispatch(updateFiles({key,size:file.size}))
-            // }
 
         }else{
             return toast.error(`Upload failed`)
         }
 
-                // return navigate(`/my-files`)
     }catch(e){
         console.log(e)
     }
