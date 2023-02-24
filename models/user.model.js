@@ -23,7 +23,15 @@ const User = new mongoose.Schema({
                         {
                            key:String,
                            size:String,
-                           uploadedOn:Date
+                           status:{
+                            type:String,
+                            enum: ['uploading','completed'] ,
+                            default:'uploading'
+                           },
+                           parts:{
+                                ETag: String,
+                                PartNumber: String
+                           }
                         }
                     ],
                     tokens:{

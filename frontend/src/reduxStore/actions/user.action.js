@@ -41,7 +41,7 @@ export const logout= () =>async (dispatch)=>{
             const result = await( await fetch(`/api/v1/user/logout`)).json()
             console.log(result)
 
-            if(!result.success) return
+            // if(!result.success) return
             // console.log(result.success)
             localStorage.clear()
 

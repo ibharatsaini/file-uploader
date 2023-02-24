@@ -20,8 +20,7 @@ const myDetails = async(req,res,next)=>{
 }
 
 const updateFiles = async(req,res,next) => {
-        // const { user } = req
-        console.log('update files')
+        
         const { key, size } = req.body
 
         console.log(key,size)
@@ -33,7 +32,6 @@ const updateFiles = async(req,res,next) => {
 
         await user.save()
 
-        console.log(user)
 
         return res.status(200)
                     .json({

@@ -12,7 +12,7 @@ async function sendToken(code,res,user){
         httpOnly: true,
         maxAge: 1000*60*6000
     }
-    console.log(res)
+    // console.log(res)
     return res.cookie('token',token,options)
                 // .status(code)
                 .redirect(`http://localhost:3000`)

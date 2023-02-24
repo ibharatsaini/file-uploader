@@ -14,21 +14,40 @@ export const addDownload = (data)=>{
 export const createDownload = (key,url)=>async(dispatch)=>{
         
             dispatch(addDownload(key))
+            const url = `/api/v1/amazon/download-url`
+            // const stream = new ReadableStream({
+            //     async start(controller) {
+            //       while (true) {
+            //         const { done, value } = await reader.read();
+            
+            //         if (done) {
+            //           controller.close();
+            //           break;
+            //         }
+            
+            //         controller.enqueue(value);
+            //       }
+            //     },
+            //   });
             axios({
-                url: url, //your url
+                url: `${url}?key=${key}`, 
                 method: 'GET',
                 onDownloadProgress:(p)=>{
+                    console.log(p)
                     dispatch(updateDownload({key,progress:(Math.floor(p.progress*100))}))
                 },
                 responseType: 'blob', // .then(response => {
               }).then(res => {
-                    const fileURL = window.URL.createObjectURL(res.data);
+                    console.log(res)
+                    const fileURL = URL.createObjectURL(new Blob([res.data]));
                     let alink = document.createElement('a');
                     alink.href = fileURL;
                     alink.download = key;
                     alink.click();
+                    URL.revokeObjectURL()
                 })
                 .catch(e=>console.log(e))  
+          
         
 }
 

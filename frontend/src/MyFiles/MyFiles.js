@@ -16,15 +16,15 @@ function MyFiles() {
     
     async function fileDown(name){
       try{
-            console.log(name)
-            const result = await ( await fetch(`/api/v1/amazon/download-url?key=${name}`)).json()
-            console.log(result)
-            if(!result.success) return
+            const name = `%5B%40OMniMO3%5D+Rick+%26+Morty+S01+E04+%5B720p%5D-91820.mkv`
+            // const result = await ( await fetch(`/api/v1/amazon/download-url?key=${name}`)).json()
+            // console.log(result)
+            // if(!result.success) return
 
-            const {data:url} = result
-            console.log(url)
+            // const {data:url} = result
+            // console.log(url)
             
-            dispatch(createDownload(name,url))
+            dispatch(createDownload(name,null))
             // })
       }catch(e){
         console.log(e)

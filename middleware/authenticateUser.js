@@ -13,9 +13,9 @@ async function authenticateUser(req,res,next){
 
         console.log(id)
         const user = await User.findById(id) 
-        console.log('user',user)
+        
         if(!user)  return res.status(404).json({success:false,error:"User not found"})
-        console.log(user)
+        // console.log(user)
         req.user = user
         next()
 }

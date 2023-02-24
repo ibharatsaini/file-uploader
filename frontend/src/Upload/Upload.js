@@ -25,12 +25,14 @@ function Upload() {
                     setFile(file)
                     console.log(file.type)
                   
-                    const result = await ( await fetch(`/api/v1/amazon/upload-url?contentType=${file.type}&fileName=${file.name}`)).json()
-                    if(!result.success) return
+                    // const result = await ( await fetch(`/api/v1/amazon/upload-url?contentType=${file.type}&fileName=${file.name}`)).json()
+                    // if(!result.success) return
                    
-                    const {uploadUrl:url , key} = result.data
+                    // const {uploadUrl:url , key} = result.data
                     
-                    console.log('check', url,key)
+                    // console.log('check', url,key)
+                    const key=''
+                    const url=''
                     dispatch(createUpload(key,url,file))
                     
         }catch(e){
