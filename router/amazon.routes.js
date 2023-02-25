@@ -1,4 +1,4 @@
-const { uploadPresignedUrl,uploadParts, downloadPresignedUrl, uploadFull } = require("../controllers/amazon.controller")
+const { uploadPresignedUrl,uploadParts, downloadPresignedUrl, uploadFull , uploadFile } = require("../controllers/amazon.controller")
 const authenticateUser = require("../middleware/authenticateUser")
 
 const router = require("express").Router()
@@ -33,6 +33,15 @@ router.route(`/upload-full`)
                 ],
                 uploadFull
             )
+
+router.route(`/upload`)
+                .put(
+                    [
+                        authenticateUser,
+                        upload.any()
+                    ],
+                    uploadFile
+                )
 router.route("/download-url")
             .get(
                 [

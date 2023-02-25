@@ -7,8 +7,9 @@ function File({name,size,handleDownload}) {
     const [visible,setVisible] = useState(false)
 
     function callDownload(){
+        console.log(size)
         setVisible(false)
-        handleDownload(name)
+        handleDownload(name,size)
     }
     
   return (

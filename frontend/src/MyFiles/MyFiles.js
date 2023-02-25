@@ -14,17 +14,11 @@ function MyFiles() {
     const dispatch = useDispatch()
 
     
-    async function fileDown(name){
+    async function fileDown(name,size){
       try{
-            const name = `%5B%40OMniMO3%5D+Rick+%26+Morty+S01+E04+%5B720p%5D-91820.mkv`
-            // const result = await ( await fetch(`/api/v1/amazon/download-url?key=${name}`)).json()
-            // console.log(result)
-            // if(!result.success) return
-
-            // const {data:url} = result
-            // console.log(url)
             
-            dispatch(createDownload(name,null))
+            
+            dispatch(createDownload(name,size))
             // })
       }catch(e){
         console.log(e)

@@ -18,6 +18,8 @@ function Upload() {
     const dispatch = useDispatch()
     
     const {uploads} = useSelector(state=>state.upload)
+
+    console.log(uploads)
     
   
     async function getUpload(file){

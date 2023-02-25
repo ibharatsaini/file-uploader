@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { MdOutlinePhotoSizeSelectActual } from 'react-icons/md'
 
 export const CREATE_DOWNLOAD = 'CREATE_DOWNLOAD'
 export const UPDATE_DOWNLOAD = 'UPDATE_DOWNLOAD'
@@ -11,30 +12,16 @@ export const addDownload = (data)=>{
     }
 }
 
-export const createDownload = (key,url)=>async(dispatch)=>{
-        
+export const createDownload = (key,size)=>async(dispatch)=>{
+            console.log(size)
             dispatch(addDownload(key))
             const url = `/api/v1/amazon/download-url`
-            // const stream = new ReadableStream({
-            //     async start(controller) {
-            //       while (true) {
-            //         const { done, value } = await reader.read();
-            
-            //         if (done) {
-            //           controller.close();
-            //           break;
-            //         }
-            
-            //         controller.enqueue(value);
-            //       }
-            //     },
-            //   });
             axios({
                 url: `${url}?key=${key}`, 
                 method: 'GET',
                 onDownloadProgress:(p)=>{
-                    console.log(p)
-                    dispatch(updateDownload({key,progress:(Math.floor(p.progress*100))}))
+                    const percent = Math.floor((p.loaded/size)*100)
+                    dispatch(updateDownload({key,progress:percent}))
                 },
                 responseType: 'blob', // .then(response => {
               }).then(res => {

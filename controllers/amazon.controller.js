@@ -36,7 +36,7 @@ const uploadPresignedUrl = async(req,res,next)=>{
                                             Key: keyName
                                         }).promise()
                 
-                await User.findByIdAndUpdate(req.user._id,{$push:{ 'files':{ key: Key,size}}})
+                await User.findByIdAndUpdate(req.user._id,{$push:{ 'files':{ key: Key,size , uploadId: UploadId}}})
                 
 
                 if(!UploadId || !Key) return res.status(404).json({success:false})
@@ -75,27 +75,27 @@ const downloadPresignedUrl = async(req,res,next)=>{
                 down.pipe(res)
 }
 
-const parts = []
 
 const uploadParts = async(req,res,next) =>{
     
-    const  {  key, uploadId} = req.body
+    const  {  key} = req.body
    
-    // const fi = await User.findOne({_id:req.user._id , files:{key}})
     let  partNumber
-    console.log(req)
-    console.log(`loop`)
-    req.user.files.map(el=>{
-        console.log(el)
-        console.log(el.key,key)
+    let files = [...req.user.files]
+
+    let parts = []
+
+    let uploadId
+
+    files.map(el=>{
         if(el.key==key){
-            console.log(el.key)
-           partNumber =  el.parts ? el.parts[-1].PartNumber+1 : 1
+           parts = [ ...el.parts ]
+
+           uploadId = el.uploadId
+           partNumber =  el.parts.length>0 ? el.parts[el.parts.length-1].PartNumber+1 : 1
 
         }
     })
-
-    console.log(partNumber , partNumber+1)
 
     const {ETag} = await  s3.uploadPart({
         Body: req.files[0].buffer,
@@ -105,13 +105,25 @@ const uploadParts = async(req,res,next) =>{
         UploadId: uploadId,
     }).promise()
 
+
+    parts.push({ETag,PartNumber:partNumber})
+
+    console.log(parts)
+
+    files.forEach(el=>{
+        if(el.key==key){
+            el.parts = [...parts]
+        }
+    })
+
+
     
 
-    const user = await User.findOneAndUpdate({_id:req.user._id, 'files.key':key},{$set:{'files.$.parts':{$push : {ETag, PartNumber: partNumber}}}})
+    // const user = await User.findOneAndUpdate({_id:req.user._id, 'files.key':key},{$set:{'files.$.parts':{$push : {eTag:ETag, PartNumber: partNumber}}}})
+    const user = await User.findOneAndUpdate({_id:req.user._id},{files} , {new:true})
     
     console.log(user)
 
-    parts.push({ETag,PartNumber: partNumber})
 
 
 
@@ -123,7 +135,17 @@ const uploadParts = async(req,res,next) =>{
 
 const uploadFull = async(req,res,next) =>{
 
-    const {key, uploadId} = req.body
+    const {key} = req.body
+
+    const fileIndex = req.user.files.findIndex(el=>el.key==key)
+
+    const uploadId = req.user.files[fileIndex].uploadId
+
+    const parts = req.user.files[fileIndex].parts.map(el=>{
+        return {ETag:el.ETag, PartNumber: el.PartNumber}
+    })
+
+    
 
     const {Location} = await s3.completeMultipartUpload(
         {
@@ -135,6 +157,11 @@ const uploadFull = async(req,res,next) =>{
 
     if(!Location) return next(new AppError(404,`Couldn't Get location`))
 
+    console.log(Location)
+
+    await User.findOneAndUpdate({_id:req.user._id, 'files.key':key},{$unset:{'files.$.parts':1, 'files.$.uploadId':1}, $set:{'files.$.status':'completed'}}, {new:true})
+
+
     return res.status(200)
                 .json({
                     success:true,
@@ -145,10 +172,30 @@ const uploadFull = async(req,res,next) =>{
 }
 
 
+const uploadFile = async(req,res,next)=>{
+       const {originalname:name, contentType,size} = req.files[0]
+
+            
+
+        const keyName = `${name.split(".")[0]}-${Math.floor(Math.random()*100000)}.${name.split(".")[1]}`
+        console.log(name,keyName)
+        const s3Params = {
+            Key: keyName,
+            Bucket: process.env.BUCKET_NAME,
+            Body: req.files[0].buffer
+        }
+        const result = await s3.upload(s3Params).promise()
+
+        if(!result) return res.json({success:false})
+
+        const user =  await User.findByIdAndUpdate(req.user._id,{$push:{files:{key:keyName, size: req.files[0].size,status:"completed"}}})
+        return res.json({success:true, data:{key:keyName}})
+}
 module.exports = {
+    uploadFile           :  catchAsyncError(uploadFile),
     uploadPresignedUrl   :  catchAsyncError(uploadPresignedUrl),
     downloadPresignedUrl :  catchAsyncError(downloadPresignedUrl),
     uploadParts          :  catchAsyncError(uploadParts),
-    uploadFull           :  catchAsyncError(uploadFull)
+    uploadFull           :  catchAsyncError(uploadFull),
 }
 

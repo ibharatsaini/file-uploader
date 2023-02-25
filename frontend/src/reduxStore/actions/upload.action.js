@@ -16,12 +16,51 @@ export const addUpload = (data)=>{
 
 export const createUpload = (key,url,file)=>async(dispatch)=>{
     try{
-        dispatch(addUpload(key))
-        // console.log
+        
         const url = `/api/v1/amazon/upload-url`     
-        const formData = new FormData();
-        // const url = '/api/v1/amazon/upload-url?contentType=${';
-        // formData.append('file', file);
+        
+        const size = file.size
+        console.log(size)
+
+        const chunkSize = 1024 * 1024 * 5
+
+        console.log(size)
+        console.log(file)
+
+
+
+        if(chunkSize > size){
+
+        dispatch(addUpload(file.name))
+
+            console.log(chunkSize,size)
+            console.log(`dkdkdk`)
+
+            const formData = new FormData()
+            formData.append("file",file)
+
+            const result = await (await fetch(`/api/v1/amazon/upload`,{
+                method:"PUT",
+                body:formData
+            })).json()
+
+            if(!result.success) return
+
+            const key = result.data.key
+
+
+            if(result.success) dispatch(updateFiles({key,size}))
+
+
+                
+            const user = JSON.parse(localStorage.getItem("user")) 
+
+            user.files.push({key,size})
+
+            localStorage.setItem("user",JSON.stringify(user))
+
+            return
+        }
     
         const uploaded = await (await fetch( url,
            {
@@ -29,43 +68,48 @@ export const createUpload = (key,url,file)=>async(dispatch)=>{
              headers:{
                 'Content-Type':"application/json"
              },
-             body: JSON.stringify({contentType:file.type , name:file.name})
+             body: JSON.stringify({contentType:file.type , name:file.name,size})
             }
         )).json()
             
         console.log(uploaded)
-        // let uploadId,key;
+        console.log(chunkSize,size)
         if(uploaded){
                
                 console.log(uploaded)
                 const {uploadId,key} = uploaded.data
-                console.log(uploadId,key)
-                // consodd.l
                 const totalSize = file.size
-                let partNumber = 1
-                const chunkSize = 1024 * 1024 * 5
-                let offset = 0
-                while (offset < totalSize) {
-                    console.log(offset,totalSize)
-                    // if(offset == 3) break
-                    const end = Math.min(offset + chunkSize, totalSize);
-                    const chunk = file.slice(offset, end);
-                    console.log(chunk,end,offset)
-                    const formData = new FormData();
-                    formData.append('partNumber', partNumber);
-                    formData.append('uploadId', uploadId);
-                    formData.append('chunk', chunk);
-                    formData.append('key',key)
-                    console.log(formData.get("chunk"))
-                    await fetch('/api/v1/amazon/upload-chunk', {
-                      method: 'POST',
-                      body: formData,
-                    });
-                    // console.log(await res.json())
-                    offset += chunkSize;
-                    partNumber++;
-                    console.log(offset,partNumber)
-                  }
+
+                dispatch(addUpload(key))
+
+                let start = 0
+
+                
+                    while (start < totalSize) {
+                        console.log(start,totalSize)
+                        const end = Math.min(start + chunkSize, totalSize);
+                        const chunk = file.slice(start, end);
+                        const formData = new FormData();
+                
+                        formData.append('chunk', chunk);
+                        formData.append('key',key)
+
+                        await fetch('/api/v1/amazon/upload-chunk', {
+                        method: 'POST',
+                        body: formData,
+                        });
+                        start += chunkSize;
+                        const percent = Math.floor((start/size)*100)
+                        
+                        if(percent>100){
+                            dispatch(updateUpload({key,progress:100}))
+                        }else{
+                            dispatch(updateUpload({key,progress:percent}))
+
+                        }
+                        
+                    }
+            
                 
                 const result = await (await fetch(`/api/v1/amazon/upload-full`,{
                     method:"POST",
@@ -74,10 +118,20 @@ export const createUpload = (key,url,file)=>async(dispatch)=>{
                       },
                     body: JSON.stringify({key,uploadId})
                 })).json()
-                console.log(result)
+                
+                if(result.success) dispatch(updateFiles({key,size}))
+
+                
+                const user = JSON.parse(localStorage.getItem("user")) 
+
+                user.files.push({key,size})
+
+                localStorage.setItem("user",JSON.stringify(user))
+                        
             
 
-        }else{
+        }
+        else{
             return toast.error(`Upload failed`)
         }
 
